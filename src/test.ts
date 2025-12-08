@@ -43,7 +43,8 @@ const search = defineSearch([
     dataIndex: 'name',
     value: '张三',
     propFn: (value, row) => {
-        
+      row.name = 1;
+      row.age = 2;
       return { maxlength: 10, showCount: true };
     },
   },
