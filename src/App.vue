@@ -12,15 +12,17 @@ import zhCN from 'ant-design-vue/es/locale/zh_CN';
 import 'dayjs/locale/zh-cn';
 import dayjs from 'dayjs';
 
+import { createTableConfig, createSearchConfig } from './components/zjwComp/utils/utils';
+
 import TestCom from '@/components/testComponent/index.vue';
 import { TableComp } from '@/components/zjwComp/index';
-import type { TableConfig } from '@/components/zjwComp/utils/tableType';
+
 
 dayjs.locale('zh-cn');
 
 
 const locale = zhCN;
-const config: TableConfig = {
+const config = createTableConfig({
   search: [
     {
       label:'姓名',
@@ -28,7 +30,7 @@ const config: TableConfig = {
       placeholder: '名称',
       dataIndex: 'name',
       value: '张三',
-      propFn: () => {
+      propFn: (value , row) => {
         return {
           maxlength: 10,
           showCount: true
@@ -144,17 +146,42 @@ const config: TableConfig = {
   button: [
     {
       label: '新增',
-      pos: 'left',
+      pos: 'right',
       type: 'primary',
       onClick: () => {
-        console.log('点击');
+        
+      }
+    },
+    {
+      label: '导出',
+      type: 'primary',
+      pos:'left',
+      danger: true,
+      onClick: () => {
         
       }
     }
   ],
-  columns: []
-};
+  columns: [],
+  api: () => {}
+} as const);
 
+createSearchConfig([
+  {
+    label:'姓名',
+    type: 'input',
+    placeholder: '名称',
+    dataIndex: 'name',
+    value: '张三',
+    propFn: (value, row) => {
+      
+      return {
+        maxlength: 10,
+        showCount: true
+      };
+    }
+  },
+] as const);
 
 </script>
 

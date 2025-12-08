@@ -1,24 +1,30 @@
 import type { Dayjs } from 'dayjs';
 import type { Component } from 'vue';
 
+export type ValueOfItem<I> =
+  I extends { type: 'input'; value?: infer V } ? V :
+  I extends { type: 'select'; mode: 'multiple'; value?: infer V } ? V :
+  I extends { type: 'dataTimeRangePicker'} ? number[] :
+  I extends { type: 'timeRangePicker' } ? string[] :
+  I extends { type: 'customComponent' } ? unknown :
+  never;
 
-type InferPropFn<T> = T extends { type: 'input' | 'timePicker' }
-  ? (_value: string, _row: Record<string, unknown>) => Record<string, unknown>
-  : T extends { type: 'select' | 'cascader' }
-  ? (_value: string | number, _row: Record<string, unknown>) => Record<string, unknown>
-  : T extends { type: 'datePicker' | 'dateTimePicker' }
-  ? (_value: number, _row: Record<string, unknown>) => Record<string, unknown>
-  : T extends { type: 'dataTimeRangePicker' }
-  ? (_value: number[], _row: Record<string, unknown>) => Record<string, unknown>
-  : T extends { type: 'timeRangePicker' }
-  ? (_value: string[], _row: Record<string, unknown>) => Record<string, unknown>
-  : (_value: unknown, _row: Record<string, unknown>) => Record<string, unknown>;
+type RowOf<C extends readonly TableSearch[]> = {
+  [I in C[number] as I['dataIndex']]: ValueOfItem<I>;
+};
+
+export type WithPropFn<C extends readonly TableSearch[]> = {
+  [I in keyof C]:
+    C[I] & {
+      propFn?: (_value: ValueOfItem<C[I]>, _row: RowOf<C>) => Record<string, unknown>;
+    };
+};
 
 
 export type SearchType = 'select' | 'input' | 'cascader' | 'datePicker' | 'timePicker' | 'dateTimePicker' | 'dataTimeRangePicker' | 'timeRangePicker' | 'customComponent';
 
 /** 基础搜索配置 */
-type BaseTableSearch<T extends SearchType> = {
+type BaseTableSearch = {
     type: SearchType;
     /** 搜索字段 */
     dataIndex: string;
@@ -34,7 +40,7 @@ type BaseTableSearch<T extends SearchType> = {
     span?: number;
     /** 其他属性 */
     prop?: Record<string, unknown>;
-    propFn?: InferPropFn<{type: T}>;
+    // propFn?: () => Record<string, unknown>
 };
 
 
@@ -57,7 +63,7 @@ export type SelectModeValueMap = {
 export type SelectMode = keyof SelectModeValueMap;
 
 /** Select 类型的搜索配置基础类型 */
-type SelectTableSearchBase = Omit<BaseTableSearch<'select'>, 'value'> & {
+type SelectTableSearchBase = Omit<BaseTableSearch, 'value'> & {
     /** 搜索类型 */
     type: 'select';
     /** 选项列表（select 类型必填） */
@@ -90,7 +96,7 @@ export type CascaderOption = SelectOption & {
 } 
 
 /** cascader类型的搜索配置（必须包含option） */
-export type CascaderTableSearch = Omit<BaseTableSearch<'cascader'>, 'value'> & {
+export type CascaderTableSearch = Omit<BaseTableSearch, 'value'> & {
     /** 搜索类型 */
     type: 'cascader';
     value: string[] | number[] | undefined;
@@ -106,7 +112,7 @@ export type CascaderTableSearch = Omit<BaseTableSearch<'cascader'>, 'value'> & {
 export type Picker = 'week' | 'month' | 'quarter' | 'year';
 
 /** datePicker类型的搜索配置 */
-export type DatePickerTableSerch = BaseTableSearch<'datePicker'> & {
+export type DatePickerTableSerch = BaseTableSearch & {
     type: 'datePicker',
     /** 模式 */
     picker?: Picker;
@@ -122,7 +128,7 @@ type DisabledTime = (_now: Dayjs) => {
 };
 
 /** timePicker类型的搜索配置 */
-export type TimePickerTableSearch = BaseTableSearch<'timePicker'> & {
+export type TimePickerTableSearch = BaseTableSearch & {
     type: 'timePicker',
     format?: string
     /** 面板是否显示“此刻”按钮 */
@@ -139,7 +145,7 @@ export type TimePickerTableSearch = BaseTableSearch<'timePicker'> & {
 }
 
 /** dateTimePicker类型的搜索配置 */
-export type DateTimePickerTableSearch = BaseTableSearch<'dateTimePicker'> & {
+export type DateTimePickerTableSearch = BaseTableSearch & {
     type: 'dateTimePicker';
     /** 不可选择的日期 */
     disabledDate?: (_currentDate: Dayjs) => boolean;
@@ -153,7 +159,7 @@ type DateTimerangePickerDisabledTime = (
     _type: 'start' | 'end',
   ) => boolean
 
-export type DateTimerangePickerTableSearch = Omit<BaseTableSearch<'dataTimeRangePicker'>, 'dataIndex' | 'placeholder' | 'value'> & {
+export type DateTimerangePickerTableSearch = Omit<BaseTableSearch, 'dataIndex' | 'placeholder' | 'value'> & {
     type: 'dataTimeRangePicker';
     /** 是否显示清除 */
     allowClear?: boolean;
@@ -177,7 +183,7 @@ type RangeDisabledTime = (
     disabledSeconds?: (_selectedHour: number, _selectedMinute: number) => number[];
   }
 
-export type TimeRangePickerTableSearch = Omit<BaseTableSearch<'timeRangePicker'>, 'dataIndex' | 'placeholder' | 'value'> & {
+export type TimeRangePickerTableSearch = Omit<BaseTableSearch, 'dataIndex' | 'placeholder' | 'value'> & {
     type: 'timeRangePicker';
     dataIndex: `${string}|${string}`;
     placeholder?: `${string}|${string}`;
@@ -194,13 +200,13 @@ export type TimeRangePickerTableSearch = Omit<BaseTableSearch<'timeRangePicker'>
 
 }
 
-export type CustomComponentTableSearch = Omit<BaseTableSearch<'customComponent'>, 'disabled'> & {
+export type CustomComponentTableSearch = Omit<BaseTableSearch, 'disabled'> & {
      type: 'customComponent';
      component: Component
 } & Record<string, unknown>
 
 
-export type InputTableSearch = BaseTableSearch<'input'> & {
+export type InputTableSearch = BaseTableSearch & {
     type: 'input';
     /** 是否显示字数统计 */
     showCount?: boolean;

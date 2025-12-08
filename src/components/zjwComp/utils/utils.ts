@@ -1,14 +1,19 @@
 // 本文件用于创建工具函数
-import type { TableConfig, TableSearch  } from './searchTypes';
-
+import type { TableSearch, WithPropFn  } from './searchTypes';
+import type { TableConfig, TableType } from './tableType';
 /**
  * 创建表格配置的工具函数
  */
-export function createTableConfig<T extends TableSearch[]>(config: {
-  search: T;
-  columns: string[];
-}): TableConfig {
+export function createTableConfig(config:TableConfig): TableConfig  {
+  return {
+    columns: config.columns,
+    search: createSearchConfig(config.search || []),
+    api: config.api,
+    button: config.button || []
+  };
+}
 
+export function createSearchConfig<C extends readonly TableSearch[]>(config: WithPropFn<C>) {
   return config;
 }
 

@@ -6,6 +6,9 @@
     <div v-if="mergeConfig.button?.length">
       <TableButtonComp :button-config="mergeConfig.button"></TableButtonComp>
     </div>
+    <!-- <ATable
+
+    ></ATable> -->
   </div>
 </template>
 
@@ -23,6 +26,8 @@ defineOptions({
 const defaultConfig: TableConfig = {
   search: [],
   columns: [],
+  button: [],
+  api: () => {}
 };
 
 const props = defineProps<{
