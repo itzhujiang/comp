@@ -1,7 +1,9 @@
 import TableComp from './table/index.vue';
+import type { TableSearch } from './utils/searchTypes';
+import type { TableConfig, RequestType, ResponseType } from './utils/tableType';
 import { createTableConfig } from './utils/utils';
 
-export type { TableSearch } from './utils/searchTypes';
-export type { TableConfig } from './utils/tableType';
 
 export { TableComp, createTableConfig };
+
+export type { TableConfig, TableSearch, RequestType, ResponseType };

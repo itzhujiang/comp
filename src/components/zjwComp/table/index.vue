@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import type { TableConfig } from '../utils/tableType';
+import type { TableConfig, RequestType } from '../utils/tableType';
 
 import TableButtonComp from './tableButton/index.vue';
 import TableSearchComp from './tableSearch/index.vue';
@@ -27,7 +27,16 @@ const defaultConfig: TableConfig = {
   search: [],
   columns: [],
   button: [],
-  api: () => {}
+  api: (_params?: RequestType<Record<string, unknown>>) => {
+    return {
+      code: 200,
+      data: {
+        list: [],
+        total: 0
+      },
+      msg: '默认返回数据'
+    };
+  }
 };
 
 const props = defineProps<{

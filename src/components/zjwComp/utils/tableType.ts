@@ -2,20 +2,20 @@
 import type { ButtonType } from './buttonType';
 import type { TableSearch } from './searchTypes';
 
-export interface TableConfig {
+export interface TableConfig<T = Record<string, unknown>, C = Record<string, unknown>> {
     /** 搜索配置 */
-    search?: TableSearch[];
+    search?: TableSearch<C>[];
     button?: ButtonType[],
-    columns: TableType[],
-    api: () => void;
+    columns: TableType<T>[],
+    api: (_params?: RequestType<C>) => Promise<ResponseType<T>> | ((_params?: RequestType<C>) => ResponseType<T>);
 };
 
 /** 表格 */
-export interface TableType {
+export interface TableType<T> {
     /** 表头 */
     label: string;
     /** 字段 */
-    dataIndex: string;
+    dataIndex: keyof T;
     /** 内容类型 */
     xtype: 'text' | 'render' | 'date' | 'dateTime';
     /** 列宽 */
@@ -24,4 +24,22 @@ export interface TableType {
     line?: boolean;
     /** 是否显示多选框 */
     isSelection?: boolean
+};
+
+export type RequestType<T> = {
+ page: number;
+ size: number;
+} & Partial<T>;
+
+export type ResponseType<T> = {
+  code: 200 | 401 | 500;
+  data: {
+    data: Array<T>;
+    pagination: {
+        page: number;
+        size: number;
+        total: number;
+    }
+  },
+  msg: string;
 };

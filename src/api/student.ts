@@ -1,6 +1,10 @@
 // 学生数据 API 接口
+import type { RequestType, ResponseType } from '../components/zjwComp/index';
 
-export interface Student {
+/**
+ * 响应的学生数据类型
+ */
+export type Student = {
   id: string;
   name: string;
   studentNo: string;
@@ -13,25 +17,20 @@ export interface Student {
   address: string;
   enrollmentDate: string;
   status: 'active' | 'inactive' | 'graduated';
-}
+};
 
-export interface PaginationParams {
-  current: number;
-  pageSize: number;
-}
+/**
+ * 搜索的参数类型
+ */
+export interface StudentSearchParams  {
+  name?: string;
+  studentNo?: number;
+  class?: string;
+  grade?: string;
+  status?: string;
+  time: string
+};
 
-export interface StudentListResponse {
-  success: boolean;
-  data: {
-    list: Student[];
-    pagination: {
-      current: number;
-      pageSize: number;
-      total: number;
-    };
-  };
-  message: string;
-}
 
 // 生成模拟学生数据
 const generateMockStudents = (page: number, pageSize: number): Student[] => {
@@ -82,134 +81,68 @@ const TOTAL_STUDENTS = 156;
  * @param searchParams 搜索参数（可选）
  * @returns Promise<StudentListResponse>
  */
-export const getStudentList = async (
-  params: PaginationParams,
-  searchParams?: {
-    name?: string;
-    studentNo?: string;
-    class?: string;
-    grade?: string;
-    status?: string;
-  }
-): Promise<StudentListResponse> => {
+export const getStudentList = async (params: RequestType<StudentSearchParams>): Promise<ResponseType<Student>> => {
   // 模拟网络延迟
   await new Promise(resolve => setTimeout(resolve, 300 + Math.random() * 200));
 
   try {
     // 生成模拟数据
-    let students = generateMockStudents(params.current, params.pageSize);
+    let students = generateMockStudents(params.page, params.size);
 
     // 应用搜索过滤
-    if (searchParams) {
-      if (searchParams.name) {
-        students = students.filter(student =>
-          student.name.includes(searchParams.name!)
-        );
-      }
-      if (searchParams.studentNo) {
-        students = students.filter(student =>
-          student.studentNo.includes(searchParams.studentNo!)
-        );
-      }
-      if (searchParams.class) {
-        students = students.filter(student =>
-          student.class === searchParams.class
-        );
-      }
-      if (searchParams.grade) {
-        students = students.filter(student =>
-          student.grade === searchParams.grade
-        );
-      }
-      if (searchParams.status) {
-        students = students.filter(student =>
-          student.status === searchParams.status
-        );
-      }
+    if (params.name) {
+      students = students.filter(student =>
+        student.name.includes(params.name!)
+      );
+    }
+    if (params.studentNo) {
+      students = students.filter(student =>
+        student.studentNo.includes(params.studentNo!)
+      );
+    }
+    if (params.class) {
+      students = students.filter(student =>
+        student.class === params.class
+      );
+    }
+    if (params.grade) {
+      students = students.filter(student =>
+        student.grade === params.grade
+      );
+    }
+    if (params.status) {
+      students = students.filter(student =>
+        student.status === params.status
+      );
     }
 
     // 如果有搜索条件，重新计算总数
-    const total = searchParams ? students.length : TOTAL_STUDENTS;
+    const total = params ? students.length : TOTAL_STUDENTS;
 
     return {
-      success: true,
+      code: 200,
       data: {
-        list: students,
+        data: students,
         pagination: {
-          current: params.current,
-          pageSize: params.pageSize,
+          page: params.page,
+          size: params.size,
           total: total
         }
       },
-      message: '获取学生列表成功'
+      msg: '获取学生列表成功'
     };
   } catch (_err) {
     return {
-      success: false,
+      code: 500,
       data: {
-        list: [],
+        data: [],
         pagination: {
-          current: params.current,
-          pageSize: params.pageSize,
+          page: params.page,
+          size: params.size,
           total: 0
         }
       },
-      message: '获取学生列表失败'
+      msg: '获取学生列表失败'
     };
   }
-};
-
-/**
- * 获取学生详情
- * @param studentId 学生ID
- * @returns Promise<{success: boolean, data: Student | null, message: string}>
- */
-export const getStudentDetail = async (
-  studentId: string
-): Promise<{success: boolean; data: Student | null; message: string}> => {
-  // 模拟网络延迟
-  await new Promise(resolve => setTimeout(resolve, 200 + Math.random() * 100));
-
-  try {
-    // 从第一页开始查找学生（实际项目中应该从数据库查找）
-    const allStudents = generateMockStudents(1, 100);
-    const student = allStudents.find(s => s.id === studentId);
-
-    if (student) {
-      return {
-        success: true,
-        data: student,
-        message: '获取学生详情成功'
-      };
-    } else {
-      return {
-        success: false,
-        data: null,
-        message: '学生不存在'
-      };
-    }
-  } catch (error) {
-    return {
-      success: false,
-      data: null,
-      message: '获取学生详情失败'
-    };
-  }
-};
-
-/**
- * 导出学生数据（模拟）
- * @param searchParams 搜索参数
- * @returns Promise<{success: boolean, message: string}>
- */
-export const exportStudents = async (
-  searchParams?: any
-): Promise<{success: boolean; message: string}> => {
-  // 模拟网络延迟
-  await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 500));
-
-  return {
-    success: true,
-    message: '学生数据导出成功'
-  };
 };

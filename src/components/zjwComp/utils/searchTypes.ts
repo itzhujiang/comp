@@ -1,33 +1,27 @@
 import type { Dayjs } from 'dayjs';
 import type { Component } from 'vue';
 
-export type ValueOfItem<I> =
-  I extends { type: 'input'; value?: infer V } ? V :
-  I extends { type: 'select'; mode: 'multiple'; value?: infer V } ? V :
-  I extends { type: 'dataTimeRangePicker'} ? number[] :
-  I extends { type: 'timeRangePicker' } ? string[] :
-  I extends { type: 'customComponent' } ? unknown :
-  never;
 
-type RowOf<C extends readonly TableSearch[]> = {
-  [I in C[number] as I['dataIndex']]: ValueOfItem<I>;
-};
-
-export type WithPropFn<C extends readonly TableSearch[]> = {
-  [I in keyof C]:
-    C[I] & {
-      propFn?: (_value: ValueOfItem<C[I]>, _row: RowOf<C>) => Record<string, unknown>;
-    };
-};
+type InferPropFn<T> = T extends { type: 'input' | 'timePicker' }
+  ? (_value: string, _row: Record<string, unknown>) => Record<string, unknown>
+  : T extends { type: 'select' | 'cascader' }
+  ? (_value: string | number, _row: Record<string, unknown>) => Record<string, unknown>
+  : T extends { type: 'datePicker' | 'dateTimePicker' }
+  ? (_value: number, _row: Record<string, unknown>) => Record<string, unknown>
+  : T extends { type: 'dataTimeRangePicker' }
+  ? (_value: number[], _row: Record<string, unknown>) => Record<string, unknown>
+  : T extends { type: 'timeRangePicker' }
+  ? (_value: string[], _row: Record<string, unknown>) => Record<string, unknown>
+  : (_value: unknown, _row: Record<string, unknown>) => Record<string, unknown>;
 
 
 export type SearchType = 'select' | 'input' | 'cascader' | 'datePicker' | 'timePicker' | 'dateTimePicker' | 'dataTimeRangePicker' | 'timeRangePicker' | 'customComponent';
 
 /** 基础搜索配置 */
-type BaseTableSearch = {
+type BaseTableSearch<T extends SearchType, C> = {
     type: SearchType;
     /** 搜索字段 */
-    dataIndex: string;
+    dataIndex: keyof C;
     /** 搜索标题 */
     label?: string;
     /** 占位符 */
@@ -40,7 +34,7 @@ type BaseTableSearch = {
     span?: number;
     /** 其他属性 */
     prop?: Record<string, unknown>;
-    // propFn?: () => Record<string, unknown>
+    propFn?: InferPropFn<{type: T}>;
 };
 
 
@@ -63,7 +57,7 @@ export type SelectModeValueMap = {
 export type SelectMode = keyof SelectModeValueMap;
 
 /** Select 类型的搜索配置基础类型 */
-type SelectTableSearchBase = Omit<BaseTableSearch, 'value'> & {
+type SelectTableSearchBase<C> = Omit<BaseTableSearch<'select', C>, 'value'> & {
     /** 搜索类型 */
     type: 'select';
     /** 选项列表（select 类型必填） */
@@ -73,21 +67,21 @@ type SelectTableSearchBase = Omit<BaseTableSearch, 'value'> & {
 };
 
 /** Select 类型的搜索配置 - 多选模式 */
-type SelectTableSearchWithMode<TMode extends SelectMode> = SelectTableSearchBase & {
+type SelectTableSearchWithMode<TMode extends SelectMode, C> = SelectTableSearchBase<C> & {
     mode: TMode;
     value?: SelectModeValueMap[TMode];
 };
 
 /** Select 类型的搜索配置 - 单选模式（无 mode） */
-type SelectTableSearchWithoutMode = SelectTableSearchBase & {
+type SelectTableSearchWithoutMode<C> = SelectTableSearchBase<C> & {
     mode?: undefined;
     value?: string | number | undefined;
 };
 
 /** Select 类型的搜索配置（必须包含 option）- 使用类型体操自动推导 */
-export type SelectTableSearch = 
-    | SelectTableSearchWithoutMode
-    | (SelectMode extends infer Mode ? Mode extends SelectMode ? SelectTableSearchWithMode<Mode> : never : never);
+export type SelectTableSearch<C> = 
+    | SelectTableSearchWithoutMode<C>
+    | (SelectMode extends infer Mode ? Mode extends SelectMode ? SelectTableSearchWithMode<Mode, C> : never : never);
 
 /** cascader的option */
 export type CascaderOption = SelectOption & {
@@ -96,7 +90,7 @@ export type CascaderOption = SelectOption & {
 } 
 
 /** cascader类型的搜索配置（必须包含option） */
-export type CascaderTableSearch = Omit<BaseTableSearch, 'value'> & {
+export type CascaderTableSearch<C> = Omit<BaseTableSearch<'cascader', C>, 'value'> & {
     /** 搜索类型 */
     type: 'cascader';
     value: string[] | number[] | undefined;
@@ -112,7 +106,7 @@ export type CascaderTableSearch = Omit<BaseTableSearch, 'value'> & {
 export type Picker = 'week' | 'month' | 'quarter' | 'year';
 
 /** datePicker类型的搜索配置 */
-export type DatePickerTableSerch = BaseTableSearch & {
+export type DatePickerTableSerch<C> = BaseTableSearch<'datePicker', C> & {
     type: 'datePicker',
     /** 模式 */
     picker?: Picker;
@@ -128,7 +122,7 @@ type DisabledTime = (_now: Dayjs) => {
 };
 
 /** timePicker类型的搜索配置 */
-export type TimePickerTableSearch = BaseTableSearch & {
+export type TimePickerTableSearch<C> = BaseTableSearch<'timePicker', C> & {
     type: 'timePicker',
     format?: string
     /** 面板是否显示“此刻”按钮 */
@@ -139,13 +133,12 @@ export type TimePickerTableSearch = BaseTableSearch & {
     hourStep?: number;
     /** 分钟选项间隔 */
     minuteStep?: number;
-    
     /** 不可选择的时间 */
     disabledTime?: DisabledTime
 }
 
 /** dateTimePicker类型的搜索配置 */
-export type DateTimePickerTableSearch = BaseTableSearch & {
+export type DateTimePickerTableSearch<C> = BaseTableSearch<'dateTimePicker', C> & {
     type: 'dateTimePicker';
     /** 不可选择的日期 */
     disabledDate?: (_currentDate: Dayjs) => boolean;
@@ -159,13 +152,13 @@ type DateTimerangePickerDisabledTime = (
     _type: 'start' | 'end',
   ) => boolean
 
-export type DateTimerangePickerTableSearch = Omit<BaseTableSearch, 'dataIndex' | 'placeholder' | 'value'> & {
+export type DateTimerangePickerTableSearch<C = Record<string, unknown>> = Omit<BaseTableSearch<'dataTimeRangePicker', C>, 'dataIndex' | 'placeholder' | 'value'> & {
     type: 'dataTimeRangePicker';
     /** 是否显示清除 */
     allowClear?: boolean;
     /** 是否显示时间 */
     showTime?: boolean;
-    dataIndex: `${string}|${string}`;
+    dataIndex: `${Extract<keyof C, string | number>}|${Extract<keyof C, string | number>}`;
     placeholder?: `${string}|${string}`;
     value?: `${string}|${string}`;
     picker?: Picker;
@@ -183,9 +176,9 @@ type RangeDisabledTime = (
     disabledSeconds?: (_selectedHour: number, _selectedMinute: number) => number[];
   }
 
-export type TimeRangePickerTableSearch = Omit<BaseTableSearch, 'dataIndex' | 'placeholder' | 'value'> & {
+export type TimeRangePickerTableSearch<C = Record<string, unknown>> = Omit<BaseTableSearch<'timeRangePicker', C>, 'dataIndex' | 'placeholder' | 'value'> & {
     type: 'timeRangePicker';
-    dataIndex: `${string}|${string}`;
+    dataIndex: `${Extract<keyof C, string | number>}|${Extract<keyof C, string | number>}`;
     placeholder?: `${string}|${string}`;
     value?: `${string}|${string}`;
     format?: string;
@@ -200,13 +193,13 @@ export type TimeRangePickerTableSearch = Omit<BaseTableSearch, 'dataIndex' | 'pl
 
 }
 
-export type CustomComponentTableSearch = Omit<BaseTableSearch, 'disabled'> & {
+export type CustomComponentTableSearch<C> = Omit<BaseTableSearch<'customComponent', C>, 'disabled'> & {
      type: 'customComponent';
      component: Component
 } & Record<string, unknown>
 
 
-export type InputTableSearch = BaseTableSearch & {
+export type InputTableSearch<C> = BaseTableSearch<'input', C> & {
     type: 'input';
     /** 是否显示字数统计 */
     showCount?: boolean;
@@ -216,5 +209,5 @@ export type InputTableSearch = BaseTableSearch & {
 
 
 /** 搜索配置联合类型 */
-export type TableSearch = SelectTableSearch | InputTableSearch | CascaderTableSearch | DatePickerTableSerch | TimePickerTableSearch | DateTimePickerTableSearch | DateTimerangePickerTableSearch | TimeRangePickerTableSearch | CustomComponentTableSearch;
+export type TableSearch<C = Record<string, unknown>> = SelectTableSearch<C> | InputTableSearch<C> | CascaderTableSearch<C> | DatePickerTableSerch<C> | TimePickerTableSearch<C> | DateTimePickerTableSearch<C> | DateTimerangePickerTableSearch<C> | TimeRangePickerTableSearch<C> | CustomComponentTableSearch<C>;
 
