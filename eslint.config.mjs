@@ -15,6 +15,33 @@ export default defineConfig([
     },
   },
 
+  // === 全局和环境配置 ===
+  {
+    languageOptions: {
+      globals: {
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        console: 'readonly',
+        process: 'readonly',
+        Buffer: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        global: 'readonly',
+      },
+    },
+  },
+
+  // === 测试文件特殊规则 ===
+  {
+    files: ['**/test.{js,ts}', '**/*.test.{js,ts}', '**/*.spec.{js,ts}'],
+    rules: {
+      '@typescript-eslint/no-unused-vars': 'off',
+      'no-unused-vars': 'off',
+    },
+  },
+
   // === 自定义规则覆盖（基于 frontend-code-reviewer.md 规范） ===
   {
     files: ['**/*.{js,jsx,ts,tsx,vue}'],

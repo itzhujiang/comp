@@ -9,10 +9,10 @@ export function createTableConfig<T, C>(config:TableConfig<T, C>): TableConfig<T
 };
 
 
-export const handleItemProps = (item: TableSearch, formData: Record<string, unknown>) => {
+export const handleItemProps = <C extends Record<string, unknown>>(item: TableSearch<C>, formData: Record<string, unknown>) => {
   if (!item.propFn) return item.prop || {};
 
-  const value = formData[item.dataIndex];
+  const value = formData[item.dataIndex as string];
   // 使用类型收窄
   switch (item.type) {
     case 'input':

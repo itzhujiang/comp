@@ -26,7 +26,6 @@ const config = createTableConfig<Student, StudentSearchParams>({
       type: 'input',
       placeholder: '名称',
       dataIndex: 'name',
-      value: 1,
       propFn: () => {
         return {
           maxlength: 10,
@@ -54,12 +53,26 @@ const config = createTableConfig<Student, StudentSearchParams>({
       }
     }
   ],
-  columns: [{
-    label: 'id',
-    dataIndex: 'id',
-    xtype: 'text',
-    width: 150
-  }],
+  columns: [
+    {
+      label: 'id',
+      dataIndex: 'id',
+      xtype: 'text',
+      width: 20
+    }, 
+    {
+      label: '名称',
+      dataIndex: 'name',
+      xtype: 'text',
+    }, 
+    {
+      label: '年龄',
+      dataIndex: 'age',
+      xtype: 'render',
+     
+      
+    }
+  ],
   api: getStudentList
 });
 

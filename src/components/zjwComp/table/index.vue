@@ -1,10 +1,14 @@
 <template>
   <div class='table-container'>
-    <div v-if="mergeConfig.search?.length">
-      <TableSearchComp :search-config="mergeConfig.search"></TableSearchComp>
+    <div v-if="config.search?.length">
+      <TableSearchComp
+        ref="tableSearchCompRef"
+        :search-config="config.search"
+        @search="onSearchClick"
+      ></TableSearchComp>
     </div>
-    <div v-if="mergeConfig.button?.length">
-      <TableButtonComp :button-config="mergeConfig.button"></TableButtonComp>
+    <div v-if="config.button?.length">
+      <TableButtonComp :button-config="config.button"></TableButtonComp>
     </div>
     <!-- <ATable
 
@@ -12,8 +16,10 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import type { TableConfig, RequestType } from '../utils/tableType';
+<script setup lang="ts"  generic="T = Record<string, unknown>">
+import { onMounted, ref } from 'vue';
+
+import type { TableConfig } from '../utils/tableType';
 
 import TableButtonComp from './tableButton/index.vue';
 import TableSearchComp from './tableSearch/index.vue';
@@ -23,28 +29,44 @@ defineOptions({
   name: 'TabelComp',
 });
 
-const defaultConfig: TableConfig = {
-  search: [],
-  columns: [],
-  button: [],
-  api: (_params?: RequestType<Record<string, unknown>>) => {
-    return {
-      code: 200,
-      data: {
-        list: [],
-        total: 0
-      },
-      msg: '默认返回数据'
-    };
-  }
+const props = defineProps<{
+  config: TableConfig<T>
+}>();
+const tableSearchCompRef = ref<InstanceType<typeof TableSearchComp>>(); // 搜索组件实例
+const tableDataRef = ref<T[]>(); // 表格数据
+
+const paginationRef = ref({
+  page: 1,
+  size: 10,
+  total: 0,
+});
+
+onMounted(async () => {
+  const res = tableSearchCompRef.value?.getSearch();
+  await handleRequest(res || {});
+});
+
+/**
+ * 搜索
+ * @param search 搜索参数对象
+ */
+const onSearchClick = (search: Record<string, string | number | undefined>) => {
+  console.log('搜索参数：', search);
 };
 
-const props = defineProps<{
-  config: TableConfig
-}>();
-
-// 合并配置项
-const mergeConfig = { ...defaultConfig, ...props.config };
+/**
+ * 处理请求
+ */
+const handleRequest = async (params: Record<string, unknown>) => {
+  const res = await props.config.api({
+    page: 1,
+    size: 10,
+    ...params,
+  });
+  console.log('请求结果：', res);
+  tableDataRef.value = res.data.data;
+  paginationRef.value.total = res.data.pagination.total;
+};
 
 
 </script>

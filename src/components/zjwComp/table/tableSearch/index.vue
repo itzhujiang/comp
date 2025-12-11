@@ -7,8 +7,8 @@
           <template  v-if="item.type === 'input'">
             <AFormItem :label="item.label" >
               <AInput
-                v-model:value="search[item.dataIndex]"
-                v-bind="item.propFn ? handleItemProps(item, search) : item.prop"
+                v-model:value="search[item.dataIndex as string]"
+                v-bind="item.propFn ? handleItemProps(item as any, search) : item.prop"
                 :placeholder="item.placeholder"
                 :disabled="item.disabled"
               ></AInput>
@@ -18,7 +18,7 @@
           <template v-if="item.type === 'select'">
             <AFormItem :label="item.label" >
               <ASelect
-                v-model:value="search[item.dataIndex]"
+                v-model:value="search[item.dataIndex as string]"
                 v-bind="item.propFn ? handleItemProps(item, search) : item.prop"
                 :placeholder="item.placeholder"
                 :disabled="item.disabled"
@@ -38,7 +38,7 @@
           <template v-if="item.type === 'cascader'">
             <AFormItem :label="item.label">
               <ACascader
-                v-model:value="search[item.dataIndex]"
+                v-model:value="search[item.dataIndex as string]"
                 v-bind="item.propFn ? handleItemProps(item, search) : item.prop"
                 :placeholder="item.placeholder"
                 :disabled="item.disabled"
@@ -51,7 +51,7 @@
           <template v-if="item.type === 'datePicker'">
             <AFormItem :label="item.label">
               <ADatePicker
-                v-model:value="search[item.dataIndex]"
+                v-model:value="search[item.dataIndex as string]"
                 v-bind="item.propFn ? handleItemProps(item, search) : item.prop"
                 :placeholder="item.placeholder"
                 :disabled="item.disabled"
@@ -67,7 +67,7 @@
           <template v-if="item.type === 'timePicker'">
             <AFormItem :label="item.label">
               <ATimePicker
-                v-model:value="search[item.dataIndex]"
+                v-model:value="search[item.dataIndex as string]"
                 v-bind="item.propFn ? handleItemProps(item, search) : item.prop"
                 :placeholder="item.placeholder"
                 :format="item.format || 'HH:mm:ss'"
@@ -116,10 +116,9 @@
            <!-- 自定义 -->
             <template v-if="item.type === 'customComponent'">
               <AFormItem :label="item.label">
-                <component :is="item.component" v-bind="item" v-model="search[item.dataIndex]"></component>
+                <component :is="item.component" v-bind="item" v-model="search[item.dataIndex as string]"></component>
               </AFormItem>
             </template>
-            
         </ACol>
         <ACol span="4">
           <!-- 按钮区域 -->
@@ -131,7 +130,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" >
 import { reactive } from 'vue';
 
 import DateTimeRangePickerComp from '../../dateTimeRangePicker/index.vue';
@@ -144,15 +143,28 @@ defineOptions({
 });
 
 
-type SearchReactiveType = Record<string, TableSearch[][number]['value']>
+type SearchReactiveType = Record<string, string | number | undefined>;
 
 const props = defineProps<{
-  searchConfig: TableSearch[]
+  searchConfig: TableSearch<Record<string, unknown>>[]
 }>();
+
+const emits = defineEmits<{
+  (_e: 'search', _value: SearchReactiveType): void
+}>();
+
+defineExpose({
+  /**
+   * 获取搜索参数
+   */
+  getSearch: () => {
+    return { ...search };
+  }
+});
 
 
 const search = reactive<SearchReactiveType>({});
-const backupSearch:SearchReactiveType = {}; 
+const backupSearch:SearchReactiveType = {};
 
 /**
  * 处理props中的dataIndex和value，赋值给search对象
@@ -171,8 +183,9 @@ const handleProps = () => {
         backupSearch[dataIndexArr[1]] = valueArr[1] || '';
       }
     } else {
-      search[item.dataIndex] = item.value || '';
-      backupSearch[item.dataIndex] = item.value || '';
+      const dataIndex = item.dataIndex as string;
+      search[dataIndex] = (item.value as string | number | undefined) || '';
+      backupSearch[dataIndex] = (item.value as string | number | undefined) || '';
     }
   });
 };
@@ -182,10 +195,10 @@ handleProps();
 
 /**
  * 修改search的值
- * @param item 
+ * @param item
  */
-const onSearchUpdate = (item: TableSearch, value: { start: string | number | undefined; end: string | number | undefined }) => {
-  const dataIndexArr = handleVerticalLine(item.dataIndex);
+const onSearchUpdate = (item: TableSearch<Record<string, unknown>>, value: { start: string | number | undefined; end: string | number | undefined }) => {
+  const dataIndexArr = handleVerticalLine(item.dataIndex as string);
   search[dataIndexArr[0]!] = value.start;
   search[dataIndexArr[1]!] = value.end;
 };
@@ -194,9 +207,11 @@ const onSearchUpdate = (item: TableSearch, value: { start: string | number | und
  * 点击搜索
  */
 const onSearchClick = () => {
-  
+  emits('search', { ...search });
 };
-
+/**
+ * 点击重置
+ */
 const onResetClick = () => {
   Object.assign(search, backupSearch);
 };

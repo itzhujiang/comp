@@ -5,7 +5,7 @@ import type { RequestType, ResponseType } from '../components/zjwComp/index';
  * 响应的学生数据类型
  */
 export type Student = {
-  id: string;
+  id: number;
   name: string;
   studentNo: string;
   age: number;
@@ -28,7 +28,7 @@ export interface StudentSearchParams  {
   class?: string;
   grade?: string;
   status?: string;
-  time: string
+  time?: string;
 };
 
 
@@ -47,14 +47,14 @@ const generateMockStudents = (page: number, pageSize: number): Student[] => {
   const students: Student[] = [];
   const startIndex = (page - 1) * pageSize;
 
-  for (let i = 0; i < pageSize; i++ ) {
+  for (let i = 0; i < pageSize; i += 1 ) {
     const index = startIndex + i;
     const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
     const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
     const name = firstName + lastName;
 
     students.push({
-      id: `student_${index + 1}`,
+      id: index + 1,
       name: name,
       studentNo: `2024${String(index + 1).padStart(4, '0')}`,
       age: Math.floor(Math.random() * 5) + 18, // 18-22岁
@@ -97,7 +97,7 @@ export const getStudentList = async (params: RequestType<StudentSearchParams>): 
     }
     if (params.studentNo) {
       students = students.filter(student =>
-        student.studentNo.includes(params.studentNo!)
+        student.studentNo.includes(params.studentNo!.toString())
       );
     }
     if (params.class) {
@@ -115,10 +115,7 @@ export const getStudentList = async (params: RequestType<StudentSearchParams>): 
         student.status === params.status
       );
     }
-
-    // 如果有搜索条件，重新计算总数
-    const total = params ? students.length : TOTAL_STUDENTS;
-
+    const filteredTotal = params.name || params.studentNo || params.class || params.grade || params.status ? students.length : TOTAL_STUDENTS;
     return {
       code: 200,
       data: {
@@ -126,12 +123,12 @@ export const getStudentList = async (params: RequestType<StudentSearchParams>): 
         pagination: {
           page: params.page,
           size: params.size,
-          total: total
+          total: filteredTotal
         }
       },
       msg: '获取学生列表成功'
     };
-  } catch (_err) {
+  } catch {
     return {
       code: 500,
       data: {

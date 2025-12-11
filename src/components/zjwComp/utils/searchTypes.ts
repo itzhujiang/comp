@@ -21,7 +21,7 @@ export type SearchType = 'select' | 'input' | 'cascader' | 'datePicker' | 'timeP
 type BaseTableSearch<T extends SearchType, C> = {
     type: SearchType;
     /** 搜索字段 */
-    dataIndex: keyof C;
+    dataIndex: Extract<keyof C, string>;
     /** 搜索标题 */
     label?: string;
     /** 占位符 */
@@ -158,7 +158,7 @@ export type DateTimerangePickerTableSearch<C = Record<string, unknown>> = Omit<B
     allowClear?: boolean;
     /** 是否显示时间 */
     showTime?: boolean;
-    dataIndex: `${Extract<keyof C, string | number>}|${Extract<keyof C, string | number>}`;
+    dataIndex: `${Extract<keyof C, string>}|${Extract<keyof C, string> }`;
     placeholder?: `${string}|${string}`;
     value?: `${string}|${string}`;
     picker?: Picker;
@@ -178,7 +178,7 @@ type RangeDisabledTime = (
 
 export type TimeRangePickerTableSearch<C = Record<string, unknown>> = Omit<BaseTableSearch<'timeRangePicker', C>, 'dataIndex' | 'placeholder' | 'value'> & {
     type: 'timeRangePicker';
-    dataIndex: `${Extract<keyof C, string | number>}|${Extract<keyof C, string | number>}`;
+    dataIndex: `${Extract<keyof C, string> }|${Extract<keyof C, string>}`;
     placeholder?: `${string}|${string}`;
     value?: `${string}|${string}`;
     format?: string;

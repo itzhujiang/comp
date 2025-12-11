@@ -37,7 +37,7 @@ function defineSearch<C extends readonly TableSearch[]>(config: WithPropFn<C>) {
   return config;
 };
 
-const search = defineSearch([
+const _search = defineSearch([
   {
     type: 'input',
     dataIndex: 'name',
