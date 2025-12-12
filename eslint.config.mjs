@@ -225,8 +225,6 @@ export default defineConfig([
         },
       ],
 
-      // 禁止在模板中使用 v-html（安全考虑）
-      'vue/no-v-html': 'warn',
 
       // 强制使用 v-bind 简写
       'vue/v-bind-style': ['error', 'shorthand'],

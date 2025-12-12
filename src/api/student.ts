@@ -15,7 +15,8 @@ export type Student = {
   phone: string;
   email: string;
   address: string;
-  enrollmentDate: string;
+  enrollmentDate: number;
+  date: number;
   status: 'active' | 'inactive' | 'graduated';
 };
 
@@ -64,7 +65,8 @@ const generateMockStudents = (page: number, pageSize: number): Student[] => {
       phone: `1${Math.floor(Math.random() * 9000000000 + 1000000000)}`,
       email: `student${index + 1}@example.com`,
       address: addresses[Math.floor(Math.random() * addresses.length)],
-      enrollmentDate: '2024-09-01',
+      date: Date.now(),
+      enrollmentDate: 1765550599763,
       status: ['active', 'active', 'active', 'inactive'][Math.floor(Math.random() * 4)] as Student['status']
     });
   }

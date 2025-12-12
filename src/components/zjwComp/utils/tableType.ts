@@ -8,31 +8,49 @@ export interface TableConfig<T = Record<string, unknown>, C = Record<string, unk
     button?: ButtonType[],
     columns: TableType<T>[],
     api: ((_params: RequestType<C>) => Promise<ResponseType<T>>) | ((_params: RequestType<C>) => ResponseType<T>);
+    scroll?: {
+        x?: number;
+        y?: number;
+    }
 };
 
 
-/** 表格 */
+/** 表格基础类型 */
 export interface BaseTableType<T> {
     /** 表头 */
-    label: string;
+    title: string;
     /** 字段 */
     dataIndex: Extract<keyof T, string>;
-    /** 内容类型 */
-    xtype: 'text' | 'render' | 'date' | 'dateTime';
     /** 列宽 */
     width?: string | number;
-    /** 一行展示，多余部分省略号展示 */
-    line?: boolean;
+   
     /** 是否显示多选框 */
     isSelection?: boolean
-};
-
-type RenderTableType<T> = Omit<BaseTableType<T>, 'xtype'> & {
-  xtype: 'render';
-  render: (_value: unknown, _row: T, _data: T[]) => string | unknown;
 }
 
-export type TableType<T> = BaseTableType<T> | RenderTableType<T>;
+/** 表格 - 简单类型（文本、日期、日期时间） */
+export type SimpleTableType<T> = BaseTableType<T> & {
+    /** 内容类型 */
+    xtype:  'date' | 'dateTime';
+}
+
+export type TextTableType<T> = BaseTableType<T> & {
+    /** 内容类型 */
+    xtype: 'text';
+    /** 一行展示，多余部分省略号展示 */
+    line?: boolean;
+}
+
+/** 表格 - 自定义渲染类型 */
+export interface RenderTableType<T> extends BaseTableType<T> {
+    /** 内容类型 */
+    xtype: 'render';
+    /** 自定义渲染函数 */
+    render: (_value: unknown, _row: T, _data: T[]) => string | unknown;
+}
+
+/** 表格类型联合 */
+export type TableType<T> = SimpleTableType<T> | RenderTableType<T> | TextTableType<T>;
 
 export type RequestType<T> = {
  page: number;

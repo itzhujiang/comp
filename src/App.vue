@@ -55,25 +55,38 @@ const config = createTableConfig<Student, StudentSearchParams>({
   ],
   columns: [
     {
-      label: 'id',
+      title: 'id',
       dataIndex: 'id',
       xtype: 'text',
-      width: 20
+      width: 50
     }, 
     {
-      label: '名称',
+      title: '名称',
       dataIndex: 'name',
       xtype: 'text',
+      line: true
     }, 
     {
-      label: '年龄',
+      title: '年龄',
       dataIndex: 'age',
       xtype: 'render',
-     
-      
+      render: (_value, row) => {
+        return `${row.age} 岁`;
+      },
+    },
+    {
+      title: '日期',
+      dataIndex: 'enrollmentDate',
+      xtype: 'date',
+    },
+    {
+      title: '出生日期',
+      dataIndex: 'date',
+      xtype: 'dateTime'
     }
   ],
-  api: getStudentList
+  api: getStudentList,
+  
 });
 
 

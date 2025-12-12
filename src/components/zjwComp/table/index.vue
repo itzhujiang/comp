@@ -10,9 +10,31 @@
     <div v-if="config.button?.length">
       <TableButtonComp :button-config="config.button"></TableButtonComp>
     </div>
-    <!-- <ATable
-
-    ></ATable> -->
+    <ATable
+      :columns="config.columns"
+      :dataSource="tableDataRef"
+      :scroll="Object.assign({ y: 600 }, config.scroll)"
+    >
+     <template  #bodyCell="{ column, text, record }" >
+       <template v-if="column.xtype === 'render'">
+         <div  v-html="column.render(text, record, column)"></div>
+       </template>
+       <template v-if="column.xtype === 'text'">
+         <ATooltip v-if="column.line">
+          <template #title>
+            <div>{{ text }}</div>
+          </template>
+          <div 
+            class="ellipsis"
+            :style="{
+              width: column.width ? column.width + 'px' : 'auto',
+            }">
+            {{ text }}
+          </div>
+         </ATooltip>
+       </template>
+     </template>
+    </ATable>
   </div>
 </template>
 
@@ -78,6 +100,11 @@ const handleRequest = async (params: Record<string, unknown>) => {
   // Less 嵌套语法示例
   .table-header {
     margin-bottom: 16px;
+  }
+  .ellipsis{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 </style>

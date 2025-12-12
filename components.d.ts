@@ -26,6 +26,7 @@ declare module 'vue' {
     ATable: typeof import('ant-design-vue/es')['Table']
     ATimePicker: typeof import('ant-design-vue/es')['TimePicker']
     ATimeRangePicker: typeof import('ant-design-vue/es')['TimeRangePicker']
+    ATooltip: typeof import('ant-design-vue/es')['Tooltip']
     DataTimeRangePicker: typeof import('./src/components/zjwComp/dataTimeRangePicker/index.vue')['default']
     DateTimeRangePicker: typeof import('./src/components/zjwComp/dateTimeRangePicker/index.vue')['default']
     Table: typeof import('./src/components/zjwComp/table/index.vue')['default']
