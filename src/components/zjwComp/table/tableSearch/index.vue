@@ -11,6 +11,7 @@
                 v-bind="item.propFn ? handleItemProps(item as any, search) : item.prop"
                 :placeholder="item.placeholder"
                 :disabled="item.disabled"
+                :allowClear="item.allowClear"
               ></AInput>
            </AFormItem>
           </template>
@@ -59,6 +60,7 @@
                 :picker="item.picker"
                 :disabledDate="item.disabledDate"
                 valueFormat="x"
+                :allowClear="item.allowClear"
                 style="width: 100%;"
               ></ADatePicker>
             </AFormItem>
@@ -76,10 +78,26 @@
                 :secondStep="item.secondStep"
                 :hourStep="item.hourStep"
                 :minuteStep="item.minuteStep"
+                :allowClear="item.allowClear"
                 style="width: 100%;"
                 :valueFormat="item.format || 'HH:mm:ss'"
               ></ATimePicker>
             </AFormItem>
+          </template>
+          <template v-if="item.type === 'dateTimePicker'">
+            <ADatePicker 
+             model:value="search[item.dataIndex as string]"
+             v-bind="item.propFn ? handleItemProps(item, search) : item.prop"
+             show-time
+             :placeholder="item.placeholder"
+             :disabled="item.disabled"
+             :disabledDate="item.disabledDate"
+             :disabledTime="item.disabledTime"
+              valueFormat="x"
+              :showToday="item.showToday"
+              :allowClear="item.allowClear"
+              style="width: 100%;"
+            />
           </template>
           <!-- 日期范围选择框 -->
           <template v-if="item.type === 'dataTimeRangePicker'">

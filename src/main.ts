@@ -4,4 +4,8 @@ import 'ant-design-vue/dist/reset.css';
 import './style.css';
 import App from './App.vue';
 
-createApp(App).mount('#app');
+import { LoadingPlugin } from '@/directives/loadingDirective';
+
+const app = createApp(App);
+app.use(LoadingPlugin);
+app.mount('#app');

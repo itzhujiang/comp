@@ -1,4 +1,5 @@
 // 本文件用于创建工具函数
+import type { FormTypeConfig } from './formType';
 import type { TableSearch  } from './searchTypes';
 import type { TableConfig } from './tableType';
 /**
@@ -8,6 +9,12 @@ export function createTableConfig<T, C>(config:TableConfig<T, C>): TableConfig<T
   return config;
 };
 
+/**
+ * 创建表单配置的工具函数
+ */
+export function createFormConfig(config: FormTypeConfig): FormTypeConfig {
+  return config;
+}
 
 export const handleItemProps = <C extends Record<string, unknown>>(item: TableSearch<C>, formData: Record<string, unknown>) => {
   if (!item.propFn) return item.prop || {};

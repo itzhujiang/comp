@@ -5,13 +5,24 @@ import type { TableSearch } from './searchTypes';
 export interface TableConfig<T = Record<string, unknown>, C = Record<string, unknown>> {
     /** 搜索配置 */
     search: TableSearch<C>[];
+    /** 按钮配置 */
     button?: ButtonType[],
+    /** 表格列配置 */
     columns: TableType<T>[],
+    /** 数据请求函数 */
     api: ((_params: RequestType<C>) => Promise<ResponseType<T>>) | ((_params: RequestType<C>) => ResponseType<T>);
     scroll?: {
         x?: number;
         y?: number;
-    }
+    },
+    /** 操作列配置 */
+    operate?: OperateType<T>[];
+    /** 操作列宽度 */
+    operateWidth?: number;
+    /** 操作列是否固定 */
+    operateFixed?: boolean;
+    /** 分页 */
+    pagination?: PaginationType;
 };
 
 
@@ -49,8 +60,18 @@ export interface RenderTableType<T> extends BaseTableType<T> {
     render: (_value: unknown, _row: T, _data: T[]) => string | unknown;
 }
 
+/** 操作列 */
+export interface OperateTableType<T> extends BaseTableType<T> {
+    /** 内容类型 */
+    xtype: 'operate';
+    fixed?: 'right';
+}
+
 /** 表格类型联合 */
 export type TableType<T> = SimpleTableType<T> | RenderTableType<T> | TextTableType<T>;
+
+/** 组件内部使用的完整表格类型联合（包含操作列） */
+export type InternalTableType<T> = TableType<T> | OperateTableType<T>;
 
 export type RequestType<T> = {
  page: number;
@@ -68,4 +89,26 @@ export type ResponseType<T> = {
     }
   },
   msg: string;
+};
+
+/** 操作列配置 */
+
+export interface OperateType<T> {
+    label: string;
+    onClick: (_row: T, _data: T[]) => void;
+    type?: 'primary' | 'ghost' | 'dashed' | 'link' | 'text'
+    /** 是否设置为危险按钮 */
+    danger?: boolean;
+    /** 幽灵属性，使按钮背景透明 */
+    ghost?: boolean;
+    /** 跳转 */
+    href?: boolean;
+}
+
+/** 分页配置 */
+export interface PaginationType {
+    /** 是否显示分页 */
+    isShow?: boolean;
+    /** 每页条数 */
+    pageSizeOptions?: string[];
 };

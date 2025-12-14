@@ -1,17 +1,16 @@
 <!-- 日期范围选择框 -->
 <template>
-  <div class="date-time-range-picker-container">
     <ARangePicker
        v-model:value="dateTimeRange"
-       v-bind="config.propFn ? handleItemProps(config, config.valueObj) : config.prop"
+       v-bind="config.propFn ? handleItemProps(config, config.valueObj) : config.prop || {}"
        :disabledDate="config.disabledDate"
        :placeholder="placeholder"
        :disabled="config.disabled"
        :showTime="config.showTime"
        :allowClear="config.allowClear"
        valueFormat="x"
+       style="width: 100%;"
     />
-  </div>
 </template>
 
 <script setup lang="ts">

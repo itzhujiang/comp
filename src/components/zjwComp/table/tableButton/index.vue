@@ -60,7 +60,6 @@ const config = computed(() => {
 <style lang="less" scoped>
 .button-container{
   width: 100%;
-  border: 1px solid red;
   display: flex;
   justify-content: space-between;
   div{

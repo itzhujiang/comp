@@ -100,6 +100,7 @@ export type CascaderTableSearch<C> = Omit<BaseTableSearch<'cascader', C>, 'value
     multiple?: boolean;
     /** 选项列表 */
     option: CascaderOption[];
+    
 };
 
 
@@ -112,6 +113,7 @@ export type DatePickerTableSerch<C> = BaseTableSearch<'datePicker', C> & {
     picker?: Picker;
     /** 是否显示“今天”按钮 */
     showToday?: boolean;
+    allowClear?: boolean
     disabledDate?: (_currentDate: Dayjs) => boolean;
 };
 
@@ -133,6 +135,7 @@ export type TimePickerTableSearch<C> = BaseTableSearch<'timePicker', C> & {
     hourStep?: number;
     /** 分钟选项间隔 */
     minuteStep?: number;
+    allowClear?: boolean
     /** 不可选择的时间 */
     disabledTime?: DisabledTime
 }
@@ -144,6 +147,8 @@ export type DateTimePickerTableSearch<C> = BaseTableSearch<'dateTimePicker', C> 
     disabledDate?: (_currentDate: Dayjs) => boolean;
     /** 不可选择的时间 */
     disabledTime?: DisabledTime
+    showToday?: boolean
+    allowClear?: boolean
 };
 
 
@@ -164,7 +169,8 @@ export type DateTimerangePickerTableSearch<C = Record<string, unknown>> = Omit<B
     picker?: Picker;
     /** 不可选择的日期 */
     disabledDate?: (_currentDate: Dayjs) => boolean;
-    disabledTime?: DateTimerangePickerDisabledTime,
+    disabledTime?: DateTimerangePickerDisabledTime;
+    
 }
 
 type RangeDisabledTime = (
@@ -190,6 +196,8 @@ export type TimeRangePickerTableSearch<C = Record<string, unknown>> = Omit<BaseT
     hourStep?: number;
     /** 分钟选项间隔 */
     minuteStep?: number;
+    /** 是否支持清除 */
+    allowClear?: boolean;
 
 }
 
@@ -205,6 +213,8 @@ export type InputTableSearch<C> = BaseTableSearch<'input', C> & {
     showCount?: boolean;
     /** 最大输入长度 */
     maxlength?: number;
+    /** 是否支持清除 */
+    allowClear?: boolean;
 }
 
 

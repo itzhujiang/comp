@@ -85,7 +85,7 @@ const TOTAL_STUDENTS = 156;
  */
 export const getStudentList = async (params: RequestType<StudentSearchParams>): Promise<ResponseType<Student>> => {
   // 模拟网络延迟
-  await new Promise(resolve => setTimeout(resolve, 300 + Math.random() * 200));
+  await new Promise(resolve => setTimeout(resolve, 1000));
 
   try {
     // 生成模拟数据

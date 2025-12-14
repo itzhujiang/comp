@@ -2,7 +2,7 @@
 <template>
   <div>
     <AConfigProvider :locale="locale">
-      <TableComp :config="config" />
+      <FormComp :config="config"></FormComp>
     </AConfigProvider>
   </div>
 </template>
@@ -12,83 +12,125 @@ import zhCN from 'ant-design-vue/es/locale/zh_CN';
 import 'dayjs/locale/zh-cn';
 import dayjs from 'dayjs';
 
-import { createTableConfig } from './components/zjwComp/utils/utils';
+import { FormComp, createFormConfig } from './components/zjwComp/index';
 
-import type { Student, StudentSearchParams } from '@/api/student';
-import { getStudentList } from '@/api/student';
-import { TableComp } from '@/components/zjwComp/index';
 dayjs.locale('zh-cn');
-
 const locale = zhCN;
-const config = createTableConfig<Student, StudentSearchParams>({
-  search: [
-    {
-      type: 'input',
-      placeholder: '名称',
-      dataIndex: 'name',
-      propFn: () => {
-        return {
-          maxlength: 10,
-          showCount: true
-        };
-      }
-    },
-  ],
-  button: [
-    {
-      label: '新增',
-      pos: 'right',
-      type: 'primary',
-      onClick: () => {
-        
-      }
-    },
-    {
-      label: '导出',
-      type: 'primary',
-      pos:'left',
-      danger: true,
-      onClick: () => {
-        
-      }
-    }
-  ],
+
+const config = createFormConfig({
+  data: {
+    name: '张三',
+    age: 18,
+    address: '北京市朝阳区',
+    gender: 1,
+    hobbies: ['jiangsu', 'nanjing', 'zhonghuamen'],
+    date: '1765723404295',
+    time: '12:30:00',
+    dateTime: '1765723404295',
+    startDateTime: '1765723404295',
+    endDateTime: '1768325404295',
+  },
   columns: [
     {
-      title: 'id',
-      dataIndex: 'id',
-      xtype: 'text',
-      width: 50
-    }, 
-    {
-      title: '名称',
+      label: '姓名',
+      type: 'input',
       dataIndex: 'name',
-      xtype: 'text',
-      line: true
-    }, 
+      rules: [{ required: true, message: '请输入姓名' }],
+    },
     {
-      title: '年龄',
+      label: '年龄',
+      type: 'select',
+      mode:'multiple',
+      options: [
+        { label: '18', value: 18, disabled: true },
+        { label: '19', value: 19 },
+        { label: '20', value: 20 },
+      ],
       dataIndex: 'age',
-      xtype: 'render',
-      render: (_value, row) => {
-        return `${row.age} 岁`;
+      allowClear: true,
+      rules: [{ required: true, message: '请选择年龄' }],
+    },
+    {
+      label: '地址',
+      type: 'cascader',
+      options: [
+        {
+          value: 'zhejiang',
+          label: 'Zhejiang',
+          children: [
+            {
+              value: 'hangzhou',
+              label: 'Hangzhou',
+              children: [
+                {
+                  value: 'xihu',
+                  label: 'West Lake',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          value: 'jiangsu',
+          label: 'Jiangsu',
+          children: [
+            {
+              value: 'nanjing',
+              label: 'Nanjing',
+              children: [
+                {
+                  value: 'zhonghuamen',
+                  label: 'Zhong Hua Men',
+                },
+              ],
+            },
+          ],
+        }
+      ],
+      dataIndex: 'hobbies',
+      placeholder: '请选择地址',
+      rules: [{ required: true, message: '请选择地址' }],
+      multiple: true
+    },
+    {
+      label: '日期',
+      type: 'datePicker',
+      dataIndex: 'date',
+      placeholder: '请选择日期',
+      rules: [{ required: true, message: '请选择日期' }],
+      disabledDate: (currentDate) => {
+        return currentDate && currentDate > dayjs().endOf('day');
       },
     },
     {
-      title: '日期',
-      dataIndex: 'enrollmentDate',
-      xtype: 'date',
+      label: '时间',
+      type: 'timePicker',
+      dataIndex: 'time',
+      placeholder: '请选择时间',
+      rules: [{ required: true, message: '请选择时间' }],
     },
     {
-      title: '出生日期',
-      dataIndex: 'date',
-      xtype: 'dateTime'
-    }
+      label: '日期时间',
+      type: 'dateTimePicker',
+      dataIndex: 'dateTime',
+      placeholder: '请选择日期时间',
+      rules: [{ required: true, message: '请选择日期时间' }],
+    },
+    {
+      label: '日期时间范围',
+      type: 'dataTimeRangePicker',
+      dataIndex: 'startDateTime|endDateTime',
+      placeholder: '开始时间|结束数据',
+      rules: [{ required: true, message: '请选择日期时间范围' }],
+    },
   ],
-  api: getStudentList,
-  
-});
+  watchEffectFn: () => {
 
+  },
+  labelCol: {
+    span: 1,
+  }
+});
 
 </script>
 
