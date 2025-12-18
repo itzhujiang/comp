@@ -8,7 +8,7 @@
             <AFormItem :label="item.label" >
               <AInput
                 v-model:value="search[item.dataIndex as string]"
-                v-bind="item.propFn ? handleItemProps(item as any, search) : item.prop"
+                v-bind="item.propsFn ? handleItemprops(item as any, search) : item.props"
                 :placeholder="item.placeholder"
                 :disabled="item.disabled"
                 :allowClear="item.allowClear"
@@ -20,7 +20,7 @@
             <AFormItem :label="item.label" >
               <ASelect
                 v-model:value="search[item.dataIndex as string]"
-                v-bind="item.propFn ? handleItemProps(item, search) : item.prop"
+                v-bind="item.propsFn ? handleItemprops(item, search) : item.props"
                 :placeholder="item.placeholder"
                 :disabled="item.disabled"
                 :mode="item.mode"
@@ -40,7 +40,7 @@
             <AFormItem :label="item.label">
               <ACascader
                 v-model:value="search[item.dataIndex as string]"
-                v-bind="item.propFn ? handleItemProps(item, search) : item.prop"
+                v-bind="item.propsFn ? handleItemprops(item, search) : item.props"
                 :placeholder="item.placeholder"
                 :disabled="item.disabled"
                 :options="item.option"
@@ -53,7 +53,7 @@
             <AFormItem :label="item.label">
               <ADatePicker
                 v-model:value="search[item.dataIndex as string]"
-                v-bind="item.propFn ? handleItemProps(item, search) : item.prop"
+                v-bind="item.propsFn ? handleItemprops(item, search) : item.props"
                 :placeholder="item.placeholder"
                 :disabled="item.disabled"
                 :showToday="item.showToday"
@@ -70,7 +70,7 @@
             <AFormItem :label="item.label">
               <ATimePicker
                 v-model:value="search[item.dataIndex as string]"
-                v-bind="item.propFn ? handleItemProps(item, search) : item.prop"
+                v-bind="item.propsFn ? handleItemprops(item, search) : item.props"
                 :placeholder="item.placeholder"
                 :format="item.format || 'HH:mm:ss'"
                 :disabled="item.disabled"
@@ -86,8 +86,8 @@
           </template>
           <template v-if="item.type === 'dateTimePicker'">
             <ADatePicker 
-             model:value="search[item.dataIndex as string]"
-             v-bind="item.propFn ? handleItemProps(item, search) : item.prop"
+             v-model:value="search[item.dataIndex as string]"
+             v-bind="item.propsFn ? handleItemprops(item, search) : item.props"
              show-time
              :placeholder="item.placeholder"
              :disabled="item.disabled"
@@ -154,7 +154,7 @@ import { reactive } from 'vue';
 import DateTimeRangePickerComp from '../../dateTimeRangePicker/index.vue';
 import TimeRangePicker from '../../timeRangePicker/index.vue';
 import type { TableSearch } from '../../utils/searchTypes';
-import { handleItemProps, handleVerticalLine } from '../../utils/utils';
+import { handleItemprops, handleVerticalLine } from '../../utils/utils';
 
 defineOptions({
   name: 'TableSearchComp',
@@ -187,7 +187,7 @@ const backupSearch:SearchReactiveType = {};
 /**
  * 处理props中的dataIndex和value，赋值给search对象
  */
-const handleProps = () => {
+const handleprops = () => {
   props.searchConfig.forEach(item => {
     if (item.type === 'dataTimeRangePicker' || item.type === 'timeRangePicker') {
       const dataIndexArr = handleVerticalLine(item.dataIndex);
@@ -209,7 +209,7 @@ const handleProps = () => {
 };
 
 
-handleProps();
+handleprops();
 
 /**
  * 修改search的值
@@ -232,6 +232,7 @@ const onSearchClick = () => {
  */
 const onResetClick = () => {
   Object.assign(search, backupSearch);
+  onSearchClick();
 };
 
 </script>

@@ -1,4 +1,5 @@
 // 作用：书写按钮区域的类型
+import PupUpFormBoxComp from '../popUpFormBox/index.vue';
 
 export interface ButtonType {
     label: string;
@@ -10,5 +11,5 @@ export interface ButtonType {
     ghost?: boolean;
     /** 跳转 */
     href?: boolean;
-    onClick?: () => void;
+    onClick?: (_com: InstanceType<typeof PupUpFormBoxComp>) => void;
 };

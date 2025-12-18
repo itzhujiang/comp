@@ -2,7 +2,7 @@
   <div class="time-range-container">
     <ATimeRangePicker 
         v-model:value="timeRange"
-        v-bind="config.propFn ? handleItemProps(config, config.valueObj) : config.prop"
+        v-bind="config.propsFn ? handleItemprops(config, config.valueObj) : config.props"
         :placeholder="placeholder"
         :format="config.format || 'HH:mm:ss'"
         style="width: 100%;"
@@ -12,6 +12,7 @@
        :hourStep="config.hourStep"
        :minuteStep="config.minuteStep"
        :disabledTime="config.disabledTime"
+       :allowClear="config.allowClear"
     />
   </div>
 </template>
@@ -20,7 +21,7 @@
 import { computed } from 'vue';
 
 import type { TimeRangePickerTableSearch } from '../utils/searchTypes';
-import { handleItemProps, handleVerticalLine } from '../utils/utils';
+import { handleItemprops, handleVerticalLine } from '../utils/utils';
 
 
 defineOptions({

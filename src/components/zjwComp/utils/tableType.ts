@@ -23,6 +23,8 @@ export interface TableConfig<T = Record<string, unknown>, C = Record<string, unk
     operateFixed?: boolean;
     /** 分页 */
     pagination?: PaginationType;
+    /** 是否显示表格选择列 */
+    isRowSelection?: boolean;
 };
 
 
@@ -70,6 +72,7 @@ export interface OperateTableType<T> extends BaseTableType<T> {
 /** 表格类型联合 */
 export type TableType<T> = SimpleTableType<T> | RenderTableType<T> | TextTableType<T>;
 
+
 /** 组件内部使用的完整表格类型联合（包含操作列） */
 export type InternalTableType<T> = TableType<T> | OperateTableType<T>;
 
@@ -81,13 +84,13 @@ export type RequestType<T> = {
 export type ResponseType<T> = {
   code: 200 | 401 | 500;
   data: {
-    data: Array<T>;
+    data: Array<T> | T;
     pagination: {
         page: number;
         size: number;
         total: number;
     }
-  },
+  } | null,
   msg: string;
 };
 
@@ -111,4 +114,12 @@ export interface PaginationType {
     isShow?: boolean;
     /** 每页条数 */
     pageSizeOptions?: string[];
+};
+
+/** 表格方法 */
+interface TableMethodType {
+    /** 前往指定页面 */
+    goPage: (_page: number) => void;
+    /** 设置页面展示数量 */
+    setSize: (_size: number) => void;
 };

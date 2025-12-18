@@ -26,7 +26,7 @@ const config = createTableConfig<Student, StudentSearchParams>({
       type: 'input',
       placeholder: '名称',
       dataIndex: 'name',
-      propFn: () => {
+      propsFn: () => {
         return {
           maxlength: 10,
           showCount: true

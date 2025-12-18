@@ -9,7 +9,7 @@
       :danger="item.danger"
       :ghost="item.ghost"
       :href="item.href"
-      @click="item.onClick"
+      @click="onButClick(item)"
       >
         {{ item.label }}
       </AButton>
@@ -23,18 +23,19 @@
       :danger="item.danger"
       :ghost="item.ghost"
       :href="item.href"
-      @click="item.onClick"
+      @click="onButClick(item)"
       >
         {{ item.label }}
       </AButton>
     </div>
-   
+    <PupUpFormBoxComp ref="popUpFormBoxRef"></PupUpFormBoxComp>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
+import PupUpFormBoxComp from '../../popUpFormBox/index.vue';
 import type { ButtonType } from '../../utils/buttonType';
 
 defineOptions({
@@ -42,18 +43,29 @@ defineOptions({
 });
 
 const props = defineProps<{
-  buttonConfig: ButtonType[];
+  buttonConfig: {
+    button: ButtonType[],
+  };
 }>();
 
+const popUpFormBoxRef = ref<InstanceType<typeof PupUpFormBoxComp>>();
+
 const config = computed(() => {
-  const leftBut = props.buttonConfig.filter(item => item.pos === 'left');
-  const rightBut = props.buttonConfig.filter(item => item.pos === 'right' || !item.pos);
+  const leftBut = props.buttonConfig.button.filter(item => item.pos === 'left');
+  const rightBut = props.buttonConfig.button.filter(item => item.pos === 'right' || !item.pos);
   return {
     leftBut,
     rightBut
   };
 });
 
+/**
+ * 处理按钮点击
+ * @param item 当前按钮的配置对象
+ */
+const onButClick = (item: ButtonType) => {
+  item.onClick?.(popUpFormBoxRef.value!);
+};
 
 </script>
 

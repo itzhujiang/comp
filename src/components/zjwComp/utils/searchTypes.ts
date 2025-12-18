@@ -2,7 +2,7 @@ import type { Dayjs } from 'dayjs';
 import type { Component } from 'vue';
 
 
-type InferPropFn<T> = T extends { type: 'input' | 'timePicker' }
+type InferpropsFn<T> = T extends { type: 'input' | 'timePicker' }
   ? (_value: string, _row: Record<string, unknown>) => Record<string, unknown>
   : T extends { type: 'select' | 'cascader' }
   ? (_value: string | number, _row: Record<string, unknown>) => Record<string, unknown>
@@ -33,8 +33,8 @@ type BaseTableSearch<T extends SearchType, C> = {
     /** 栅栏占位数 */
     span?: number;
     /** 其他属性 */
-    prop?: Record<string, unknown>;
-    propFn?: InferPropFn<{type: T}>;
+    props?: Record<string, unknown>;
+    propsFn?: InferpropsFn<{type: T}>;
 };
 
 

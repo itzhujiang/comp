@@ -1,10 +1,8 @@
 
 <template>
-  <div>
     <AConfigProvider :locale="locale">
-      <FormComp :config="config"></FormComp>
+      <TableComp :config="config" />
     </AConfigProvider>
-  </div>
 </template>
 
 <script setup lang="ts">
@@ -12,125 +10,94 @@ import zhCN from 'ant-design-vue/es/locale/zh_CN';
 import 'dayjs/locale/zh-cn';
 import dayjs from 'dayjs';
 
-import { FormComp, createFormConfig } from './components/zjwComp/index';
+import { createTableConfig } from './components/zjwComp/utils/utils';
 
+import type { Student, StudentSearchParams } from '@/api/student';
+import { getStudentList } from '@/api/student';
+import { TableComp } from '@/components/zjwComp/index';
 dayjs.locale('zh-cn');
-const locale = zhCN;
 
-const config = createFormConfig({
-  data: {
-    name: '张三',
-    age: 18,
-    address: '北京市朝阳区',
-    gender: 1,
-    hobbies: ['jiangsu', 'nanjing', 'zhonghuamen'],
-    date: '1765723404295',
-    time: '12:30:00',
-    dateTime: '1765723404295',
-    startDateTime: '1765723404295',
-    endDateTime: '1768325404295',
-  },
-  columns: [
+const locale = zhCN;
+const config = createTableConfig<Student, StudentSearchParams>({
+  search: [
     {
-      label: '姓名',
       type: 'input',
+      placeholder: '名称',
       dataIndex: 'name',
-      rules: [{ required: true, message: '请输入姓名' }],
-    },
-    {
-      label: '年龄',
-      type: 'select',
-      mode:'multiple',
-      options: [
-        { label: '18', value: 18, disabled: true },
-        { label: '19', value: 19 },
-        { label: '20', value: 20 },
-      ],
-      dataIndex: 'age',
-      allowClear: true,
-      rules: [{ required: true, message: '请选择年龄' }],
-    },
-    {
-      label: '地址',
-      type: 'cascader',
-      options: [
-        {
-          value: 'zhejiang',
-          label: 'Zhejiang',
-          children: [
-            {
-              value: 'hangzhou',
-              label: 'Hangzhou',
-              children: [
-                {
-                  value: 'xihu',
-                  label: 'West Lake',
-                },
-              ],
-            },
-          ],
-        },
-        {
-          value: 'jiangsu',
-          label: 'Jiangsu',
-          children: [
-            {
-              value: 'nanjing',
-              label: 'Nanjing',
-              children: [
-                {
-                  value: 'zhonghuamen',
-                  label: 'Zhong Hua Men',
-                },
-              ],
-            },
-          ],
-        }
-      ],
-      dataIndex: 'hobbies',
-      placeholder: '请选择地址',
-      rules: [{ required: true, message: '请选择地址' }],
-      multiple: true
-    },
-    {
-      label: '日期',
-      type: 'datePicker',
-      dataIndex: 'date',
-      placeholder: '请选择日期',
-      rules: [{ required: true, message: '请选择日期' }],
-      disabledDate: (currentDate) => {
-        return currentDate && currentDate > dayjs().endOf('day');
-      },
-    },
-    {
-      label: '时间',
-      type: 'timePicker',
-      dataIndex: 'time',
-      placeholder: '请选择时间',
-      rules: [{ required: true, message: '请选择时间' }],
-    },
-    {
-      label: '日期时间',
-      type: 'dateTimePicker',
-      dataIndex: 'dateTime',
-      placeholder: '请选择日期时间',
-      rules: [{ required: true, message: '请选择日期时间' }],
-    },
-    {
-      label: '日期时间范围',
-      type: 'dataTimeRangePicker',
-      dataIndex: 'startDateTime|endDateTime',
-      placeholder: '开始时间|结束数据',
-      rules: [{ required: true, message: '请选择日期时间范围' }],
+      propsFn: () => {
+        return {
+          maxlength: 10,
+          showCount: true
+        };
+      }
     },
   ],
-  watchEffectFn: () => {
-
+  button: [
+    {
+      label: '新增',
+      pos: 'right',
+      type: 'primary',
+      onClick: () => {
+        
+      }
+    },
+    {
+      label: '导出',
+      type: 'primary',
+      pos:'left',
+      danger: true,
+      onClick: () => {
+        
+      }
+    }
+  ],
+  columns: [
+    {
+      title: 'id',
+      dataIndex: 'id',
+      xtype: 'text',
+      width: 100
+    }, 
+    {
+      title: '名称',
+      dataIndex: 'name',
+      xtype: 'text',
+      line: true
+    }, 
+    {
+      title: '年龄',
+      dataIndex: 'age',
+      xtype: 'render',
+      render: (_value, row) => {
+        return `${row.age} 岁`;
+      },
+    },
+  ],
+  operate: [
+    {
+      label: '编辑',
+      type: 'link',
+      onClick: (record) => {
+        console.log('编辑：', record);
+      }
+    },
+    {
+      label: '删除',
+      type: 'link',
+      danger: true,
+      onClick: (record) => {
+        console.log('删除：', record);
+      }
+    }
+  ],
+  pagination: {
+    isShow: true,
+    pageSizeOptions: ['5', '10', '20', '50']
   },
-  labelCol: {
-    span: 1,
-  }
+  api: getStudentList,
+  
 });
+
 
 </script>
 

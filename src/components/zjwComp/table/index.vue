@@ -8,7 +8,11 @@
       ></TableSearchComp>
     </div>
     <div v-if="config.button?.length">
-      <TableButtonComp :button-config="config.button"></TableButtonComp>
+      <TableButtonComp 
+       :button-config="{
+        button: config.button
+       }">
+      </TableButtonComp>
     </div>
     <ATable
       v-loading="loadingRef"
@@ -17,6 +21,9 @@
       :dataSource="tableDataRef"
       :scroll="Object.assign({ y: 600 }, config.scroll)"
       :pagination="false"
+      :rowSelection="{
+        selections: config.isRowSelection
+      }"
     >
      <template #bodyCell="{ column, text, record }" >
        <template v-if="column.xtype === 'render'">
@@ -73,6 +80,7 @@
 import dayjs from 'dayjs';
 import { computed, onMounted, ref } from 'vue';
 
+// import PopUpFormBoxComp from '../popUpFormBox/index.vue';
 import type { TableConfig, InternalTableType } from '../utils/tableType';
 
 import TableButtonComp from './tableButton/index.vue';
@@ -155,11 +163,16 @@ const handleRequest = async (params: Record<string, unknown>) => {
     ...params,
   });
   console.log('请求结果：', res);
-  tableDataRef.value = res.data.data;
-  paginationRef.value.total = res.data.pagination.total;
+  if (res.data && Array.isArray(res.data.data)) {
+    tableDataRef.value = res.data.data;
+    paginationRef.value.total = res.data.pagination.total;
+  }
   loadingRef.value = false;
 };
 
+// const getTableMethod = () => {
+
+// };
 
 </script>
 

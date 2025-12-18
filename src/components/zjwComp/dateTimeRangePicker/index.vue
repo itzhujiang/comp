@@ -2,7 +2,7 @@
 <template>
     <ARangePicker
        v-model:value="dateTimeRange"
-       v-bind="config.propFn ? handleItemProps(config, config.valueObj) : config.prop || {}"
+       v-bind="config.propsFn ? handleItemprops(config, config.valueObj) : config.props || {}"
        :disabledDate="config.disabledDate"
        :placeholder="placeholder"
        :disabled="config.disabled"
@@ -11,6 +11,7 @@
        valueFormat="x"
        style="width: 100%;"
     />
+    
 </template>
 
 <script setup lang="ts">
@@ -18,7 +19,7 @@ import { computed } from 'vue';
 
 
 import type { DateTimerangePickerTableSearch } from '../utils/searchTypes';
-import { handleItemProps, handleVerticalLine } from '../utils/utils';
+import { handleItemprops, handleVerticalLine } from '../utils/utils';
 
 defineOptions({
   name: 'DateTimeRangePickerComp',
@@ -27,6 +28,8 @@ defineOptions({
 const props = defineProps<{
   config: DateTimerangePickerTableSearch & {
     valueObj: Record<string, unknown>;
+  } & {
+    rules?: Record<string, unknown>[];
   },
   modelValue: {
     start: string | number | undefined;

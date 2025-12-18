@@ -26,14 +26,14 @@ type RowOf<C extends readonly TableSearch[]> = {
   [I in C[number] as I['dataIndex']]: ValueOfItem<I>;
 };
 
-type WithPropFn<C extends readonly TableSearch[]> = {
+type WithpropsFn<C extends readonly TableSearch[]> = {
   [I in keyof C]:
     C[I] & {
-      propFn?: (_value: ValueOfItem<C[I]>, _row: RowOf<C>) => Record<string, unknown>;
+      propsFn?: (_value: ValueOfItem<C[I]>, _row: RowOf<C>) => Record<string, unknown>;
     };
 };
 
-function defineSearch<C extends readonly TableSearch[]>(config: WithPropFn<C>) {
+function defineSearch<C extends readonly TableSearch[]>(config: WithpropsFn<C>) {
   return config;
 };
 
@@ -42,7 +42,7 @@ const _search = defineSearch([
     type: 'input',
     dataIndex: 'name',
     value: '张三',
-    propFn: (value, row) => {
+    propsFn: (value, row) => {
       row.name = 1;
       row.age = 2;
       return { maxlength: 10, showCount: true };

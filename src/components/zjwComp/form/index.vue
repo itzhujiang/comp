@@ -2,20 +2,21 @@
 <template>
   <div class="form-container">
     <AForm
+      ref="formRef"
       :model="formState"
-      :labelCol="props.config.labelCol"
+      :labelCol="configuration.labelCol"
     >
         <AFormItem
-          v-for="item in props.config.columns"
+          v-for="item in configuration.columns"
           :key="item.dataIndex"
           :label="item.label"
-          :name="item.type === 'dataTimeRangePicker' || item.type === 'timeRangePicker' ? handleVerticalLine(item.dataIndex) : item.dataIndex"
+          :name="item.dataIndex"
           :rules="item.rules"
         >
           <template v-if="item.type === 'input'">
             <AInput 
             v-model:value="formState[item.dataIndex as string]"
-            v-bind="item.propFn ? item.propFn(formState[item.dataIndex as string], formState) : item.prop || {}"
+            v-bind="item.propsFn ? item.propsFn(formState[item.dataIndex as string], formState) : item.props || {}"
             :placeholder="item.placeholder"
             :disabled="item.disabled"
             :showCount="item.showCount"
@@ -26,7 +27,7 @@
           <template v-else-if="item.type === 'select'">
             <ASelect 
               v-model:value="formState[item.dataIndex as string]"
-              v-bind="item.propFn ? item.propFn(formState[item.dataIndex as string], formState) : item.prop || {}"
+              v-bind="item.propsFn ? item.propsFn(formState[item.dataIndex as string], formState) : item.props || {}"
              :placeholder="item.placeholder"
               :disabled="item.disabled"
               :mode="item.mode"
@@ -46,7 +47,7 @@
           <template v-else-if="item.type === 'cascader'">
             <ACascader
               v-model:value="formState[item.dataIndex as string]"
-              v-bind="item.propFn ? item.propFn(formState[item.dataIndex as string], formState) : item.prop || {}"
+              v-bind="item.propsFn ? item.propsFn(formState[item.dataIndex as string], formState) : item.props || {}"
               :options="item.options"
               :placeholder="item.placeholder"
               :disabled="item.disabled"
@@ -56,7 +57,7 @@
           <template v-else-if="item.type === 'datePicker'">
             <ADatePicker
                 v-model:value="formState[item.dataIndex as string]"
-                v-bind="item.propFn ? item.propFn(formState[item.dataIndex as string], formState) : item.prop || {}"
+                v-bind="item.propsFn ? item.propsFn(formState[item.dataIndex as string], formState) : item.props || {}"
                 :allowClear="item.allowClear"
                 :placeholder="item.placeholder"
                 :disabled="item.disabled"
@@ -70,7 +71,7 @@
           <template v-else-if="item.type === 'timePicker'">
              <ATimePicker
                 v-model:value="formState[item.dataIndex as string]"
-                v-bind="item.propFn ? item.propFn(formState[item.dataIndex as string], formState) : item.prop || {}"
+                v-bind="item.propsFn ? item.propsFn(formState[item.dataIndex as string], formState) : item.props || {}"
                 :placeholder="item.placeholder"
                 :allowClear="item.allowClear"
                 :format="item.format || 'HH:mm:ss'"
@@ -86,7 +87,7 @@
           <template v-else-if="item.type === 'dateTimePicker'">
             <ADatePicker 
              v-model:value="formState[item.dataIndex as string]"
-             v-bind="item.propFn ? item.propFn(formState[item.dataIndex as string], formState) : item.prop || {}"
+             v-bind="item.propsFn ? item.propsFn(formState[item.dataIndex as string], formState) : item.props || {}"
              show-time
              :placeholder="item.placeholder"
              :disabled="item.disabled"
@@ -99,7 +100,6 @@
             />
           </template>
           <template v-else-if="item.type === 'dataTimeRangePicker'">
-            <div>
               <DateTimeRangePickerComp
                 :config="{
                   ...item,
@@ -111,7 +111,69 @@
                 }"
                  @update:modelValue="(value) => onFormStateUpdate(item, value)"
               ></DateTimeRangePickerComp>
-            </div>
+          </template>
+          <template v-else-if="item.type === 'timeRangePicker'">
+            <TimeRangePickerComp
+              :config="{
+                ...item,
+                valueObj: formState
+              }"
+              :model-value="{
+                  start: formState[handleVerticalLine(item.dataIndex)[0] as string] as string  | undefined,
+                  end: formState[handleVerticalLine(item.dataIndex)[1] as string] as string  | undefined
+                }"
+              @update:modelValue="(value) => onFormStateUpdate(item, value)"
+            ></TimeRangePickerComp>
+          </template>
+          <template v-else-if="item.type === 'checkbox'">
+            <ACheckboxGroup 
+             v-model:value="formState[item.dataIndex as string]"
+             v-bind="item.propsFn ? item.propsFn(formState[item.dataIndex as string], formState) : item.props || {}"
+             :disabled="item.disabled"
+             :options="item.options" 
+             />
+          </template>
+          <template v-else-if="item.type === 'radio'">
+            <ARadioGroup 
+             v-model:value="formState[item.dataIndex as string]"
+             v-bind="item.propsFn ? item.propsFn(formState[item.dataIndex as string], formState) : item.props || {}"
+             :disabled="item.disabled"
+             :options="item.options" 
+            />
+          </template>
+          <template v-else-if="item.type === 'number'">
+            <AInputNumber
+              v-model:value="formState[item.dataIndex as string]"
+             v-bind="item.propsFn ? item.propsFn(formState[item.dataIndex as string], formState) : item.props || {}"
+             style="width: 100%;"
+             :disabled="item.disabled"
+             :min="item.min"
+             :max="item.max" 
+             :step="item.step"
+             :placeholder="item.placeholder"
+             :precision="item.precision"
+             />
+          </template>
+          <template v-else-if="item.type === 'component'">
+            <component 
+            :is="item.component" 
+             v-bind="{
+              ...item,
+              formState
+            }"  
+            v-model="formState[item.dataIndex as string]"
+           
+            >
+          </component>
+          </template>
+          <template v-else-if="item.type === 'textarea'">
+            <ATextarea 
+             v-model:value="formState[item.dataIndex as string]"
+             v-bind="item.propsFn ? item.propsFn(formState[item.dataIndex as string], formState) : item.props || {}"
+             :placeholder="item.placeholder"
+             :showCount="item.showCount"
+             :allowClear="item.allowClear"
+             :rows="item.rows" />
           </template>
         </AFormItem>
     </AForm>
@@ -119,10 +181,12 @@
 </template>
 
 <script setup lang="ts">
+import type { FormInstance } from 'ant-design-vue';
 import { cloneDeep } from 'lodash';
-import { reactive } from 'vue';
+import { reactive, watchEffect, nextTick, ref } from 'vue';
 
 import DateTimeRangePickerComp from '../dateTimeRangePicker/index.vue';
+import TimeRangePickerComp from '../timeRangePicker/index.vue';
 import type { FormTypeConfig, DataTimeRangePickerFormType, TimeRangePickerFormType } from '../utils/formType';
 import { handleVerticalLine } from '../utils/utils';
 
@@ -134,12 +198,45 @@ const props = defineProps<{
   config: FormTypeConfig
 }>();
 
+defineExpose({
+  /**
+   * 获取form实例
+   */
+  getRef: () => {
+    return formRef.value;
+  },
+  /**
+   * 获取数据
+   */
+  getFormState: () => {
+    return formState;
+  },
+  /**
+   * 重置
+   */
+  reset: () => {
+    Object.assign(formState, cloneDeep(backupFormState));
+  }
+});
+
 const formState = reactive<Record<string, unknown>>({});
 const backupFormState: Record<string, unknown> = {};
+const configuration = reactive(cloneDeep(props.config));
+const formRef = ref<FormInstance | null>(null);
 
-const handlePropsToFormState = () => {
-  const data = cloneDeep(props.config.data);
-  props.config.columns.forEach(item => {
+watchEffect(() => {
+  Object.keys(formState).forEach((key) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    formState[key];
+  });
+  nextTick(() => {
+    configuration.watchEffectFn?.(formState, configuration.columns);
+  });
+});
+
+const handlepropsToFormState = () => {
+  const data = cloneDeep(configuration.data);
+  configuration.columns.forEach(item => {
     if (item.type === 'dataTimeRangePicker' || item.type === 'timeRangePicker') {
       const dataIndexArr = handleVerticalLine(item.dataIndex);
       if (dataIndexArr[0]) {
@@ -150,16 +247,19 @@ const handlePropsToFormState = () => {
         formState[dataIndexArr[1]] = data[dataIndexArr[1]] || '';
         backupFormState[dataIndexArr[1]] = data[dataIndexArr[1]] || '';
       }
+      formState[item.dataIndex] = dataIndexArr[0] && dataIndexArr[1] ? formState[dataIndexArr[0]] && formState[dataIndexArr[1]] ? [formState[dataIndexArr[0]], formState[dataIndexArr[1]]] : '' : '';
+      backupFormState[item.dataIndex] = dataIndexArr[0] && dataIndexArr[1] ? formState[dataIndexArr[0]] && formState[dataIndexArr[1]] ? [formState[dataIndexArr[0]], formState[dataIndexArr[1]]] : '' : '';
     } else {
       const dataIndex = item.dataIndex as string;
       formState[dataIndex] = data[dataIndex] || '';
       backupFormState[dataIndex] = data[dataIndex] || '';
     }
+    
   });
   
 };
 
-handlePropsToFormState();
+handlepropsToFormState();
 
 /**
  * 修改formState的值
@@ -167,6 +267,7 @@ handlePropsToFormState();
  */
 const onFormStateUpdate = (item: DataTimeRangePickerFormType | TimeRangePickerFormType, value: { start: string | number | undefined; end: string | number | undefined }) => {
   const dataIndexArr = handleVerticalLine(item.dataIndex as string);
+  formState[item.dataIndex] = value.start && value.end ? [value.start, value.end] : undefined;
   formState[dataIndexArr[0]!] = value.start;
   formState[dataIndexArr[1]!] = value.end;
 };

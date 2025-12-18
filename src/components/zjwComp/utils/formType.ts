@@ -3,7 +3,7 @@
 import type { Dayjs } from 'dayjs';
 import type { Component } from 'vue';
 
-export type FormType = 'select' | 'input' | 'cascader' | 'datePicker' | 'timePicker' | 'dateTimePicker' | 'dataTimeRangePicker' | 'timeRangePicker' | 'customComponent' | 'checkbox' | 'radio' | 'number';
+export type FormType = 'select' | 'input' | 'cascader' | 'datePicker' | 'timePicker' | 'dateTimePicker' | 'dataTimeRangePicker' | 'timeRangePicker' | 'component' | 'checkbox' | 'radio' | 'number' | 'textarea';
 
 type BaseFormType = {
     type: FormType;
@@ -16,10 +16,10 @@ type BaseFormType = {
     /** 是否禁用 */
     disabled?: boolean;
     /** 其他属性 */
-    prop?: Record<string, unknown>;
+    props?: Record<string, unknown>;
     /** 校验规则 */
     rules?: Record<string, unknown>[];
-    propFn?: (_value: unknown, _formData: Record<string, unknown>) => Record<string, unknown>;
+    propsFn?: (_value: unknown, _formData: Record<string, unknown>) => Record<string, unknown>;
 };
 
 /** 选项类型 */
@@ -154,6 +154,8 @@ export type TimeRangePickerFormType = Omit<BaseFormType, 'dataIndex' | 'placehol
     hourStep?: number;
     /** 分钟选项间隔 */
     minuteStep?: number;
+    /** 是否显示清除 */
+   allowClear?: boolean;
 };
 
 type RangeDisabledTime = (_now: Dayjs, _type: 'start' | 'end',) => {
@@ -164,13 +166,13 @@ type RangeDisabledTime = (_now: Dayjs, _type: 'start' | 'end',) => {
 
 /** 自定义组件表单项 */
 type CustomComponentFormType = BaseFormType & {
-    type: 'custom';
+    type: 'component';
     /** vue组件 */
     component: Component;
 } & Record<string, unknown>;
 
 /** checkbox表单项 */
-type CheckboxFormType = BaseFormType & {
+type CheckboxFormType = Omit<BaseFormType, 'placeholder'> & {
     type: 'checkbox';
     /** 选项 */
     options: (SelectOption & {
@@ -179,7 +181,7 @@ type CheckboxFormType = BaseFormType & {
 }
 
 /** radio表单项 */
-type RadioFormType = BaseFormType & {
+type RadioFormType = Omit<BaseFormType, 'placeholder'> & {
     type: 'radio';
     /** 选项 */
     options: (SelectOption & {
@@ -196,13 +198,23 @@ type NumberFormType = BaseFormType & {
     max?: number;
     /** 步长 */
     step?: number;
-    /** 初始值 */
-    defaultValue?: number;
     /** 数值精度 */
     precision?: number;
 }
 
-export type FormItemType = SelectFormType | InputFormType | CascaderFormType | DatePickerFormType | TimePickerFormType | DateTimePickerFormType | DataTimeRangePickerFormType | TimeRangePickerFormType | CustomComponentFormType | CheckboxFormType | RadioFormType | NumberFormType;
+/** textarea表单项 */
+type TextareaFormType = BaseFormType & {
+    type: 'textarea',
+    /** 是否展示字数 */
+    showCount?: boolean,
+    /** 自适应内容高度 */
+    autosize?: boolean | { minRows?: number, maxRows?: number }
+    /** 可以点击清除图标删除内容	 */
+    allowClear?: boolean,
+    rows?: number
+}
+
+export type FormItemType = SelectFormType | InputFormType | CascaderFormType | DatePickerFormType | TimePickerFormType | DateTimePickerFormType | DataTimeRangePickerFormType | TimeRangePickerFormType | CustomComponentFormType | CheckboxFormType | RadioFormType | NumberFormType | TextareaFormType;
 
 export type FormTypeConfig = {
     data: Record<string, unknown>,

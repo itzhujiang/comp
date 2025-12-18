@@ -15,8 +15,6 @@ export type Student = {
   phone: string;
   email: string;
   address: string;
-  enrollmentDate: number;
-  date: number;
   status: 'active' | 'inactive' | 'graduated';
 };
 
@@ -31,6 +29,11 @@ export interface StudentSearchParams  {
   status?: string;
   time?: string;
 };
+
+/**
+ * 添加学生的参数类型（id 会自动生成）
+ */
+export type AddStudentParams = Omit<Student, 'id'>;
 
 
 // 生成模拟学生数据
@@ -142,6 +145,49 @@ export const getStudentList = async (params: RequestType<StudentSearchParams>): 
         }
       },
       msg: '获取学生列表失败'
+    };
+  }
+};
+
+/**
+ * 添加学生
+ * @param studentData 学生数据
+ * @returns Promise<ResponseType<Student>>
+ */
+export const addStudent = async (studentData: AddStudentParams): Promise<ResponseType<Student>> => {
+  // 模拟网络延迟
+  await new Promise(resolve => setTimeout(resolve, 800));
+
+  try {
+    // 验证必填字段
+    if (!studentData.name || !studentData.studentNo) {
+      return {
+        code: 500,
+        data: null,
+        msg: '学生姓名和学号为必填项'
+      };
+    }
+
+    // 模拟检查学号是否已存在
+    if (Math.random() > 0.9) {
+      return {
+        code: 500,
+        data: null,
+        msg: '学号已存在，请使用其他学号'
+      };
+    }
+
+
+    return {
+      code: 200,
+      data: null,
+      msg: '添加学生成功'
+    };
+  } catch  {
+    return {
+      code: 500,
+      data: null,
+      msg: '添加学生失败'
     };
   }
 };
